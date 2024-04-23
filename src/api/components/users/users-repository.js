@@ -1,10 +1,12 @@
+const { split } = require('lodash');
 const { User } = require('../../../models');
 
 /**
  * Get a list of users
  * @returns {Promise}
  */
-async function getUsers() {
+async function getUsers(search, sort) {
+  // search & sort di split
   return User.find({});
 }
 

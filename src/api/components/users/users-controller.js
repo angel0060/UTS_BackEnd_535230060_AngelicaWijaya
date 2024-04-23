@@ -22,7 +22,7 @@ async function getUsers(request, response, next) {
     const has_previous_page = 1; //temp
     const has_next_page = 1; //temp
 
-    const response = {
+    const res = {
       page_number: page_number,
       page_number: page_size,
       count: count,
@@ -31,7 +31,7 @@ async function getUsers(request, response, next) {
       has_next_page: has_next_page,
       data: users,
     };
-    return response.status(200).json(response);
+    return response.status(200).json(res);
   } catch (error) {
     return next(error);
   }
