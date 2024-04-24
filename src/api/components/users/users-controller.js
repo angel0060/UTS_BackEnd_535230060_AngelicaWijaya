@@ -14,14 +14,27 @@ async function getUsers(request, response, next) {
     const sort = request.query.sort || 'email:asc';
     const page_number = parseInt(request.query.page_number) - 1 || 0;
     const page_size = parseInt(request.query.page_size) || 1 / 0;
+
     const users = await usersService.getUsers(
       search,
       sort,
       page_number,
       page_size
     );
+    if (!users) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to Get List of Users'
+      );
+    }
 
     const count = await usersService.countUsers(search);
+    if (!count) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to Count Existing Users'
+      );
+    }
 
     let total_pages = 1;
     if (count > page_size && (count / page_size) % 2 == 0) {
