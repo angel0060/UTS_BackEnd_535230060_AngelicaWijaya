@@ -22,7 +22,12 @@ async function getUsers(request, response, next) {
     );
 
     const count = await usersService.countUsers(search);
-    const total_pages = 1; //temp
+    let total_pages = 1;
+    if (count > page_size && (count / page_size) % 2 == 0) {
+      total_pages = Math.trunc(count / page_size);
+    } else if (count > page_size) {
+      total_pages = Math.trunc(count / page_size) + 1;
+    }
     const has_previous_page = 1; //temp
     const has_next_page = 1; //temp
 
