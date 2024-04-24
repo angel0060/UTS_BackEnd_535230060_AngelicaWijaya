@@ -26,6 +26,10 @@ async function getUsers(search, sort, page_number, page_size) {
   return results;
 }
 
+async function countUsers(search) {
+  return await usersRepository.countUsers(search);
+}
+
 /**
  * Get user detail
  * @param {string} id - User ID
@@ -175,4 +179,5 @@ module.exports = {
   emailIsRegistered,
   checkPassword,
   changePassword,
+  countUsers,
 };

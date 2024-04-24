@@ -7,7 +7,6 @@ const { User } = require('../../../models');
  */
 async function getUsers(search, sort, page_number, page_size) {
   // search & sort di split
-
   const searchh = search.split(':');
   const searchFor = searchh[1];
 
@@ -37,6 +36,26 @@ async function getUsers(search, sort, page_number, page_size) {
       .skip(page_number * page_size)
       .limit(page_size);
     return users;
+  }
+}
+
+async function countUsers(search) {
+  const searchh = search.split(':');
+  const searchFor = searchh[1];
+
+  if (searchh[0] == 'name') {
+    const count = User.countDocuments({
+      name: { $regex: searchFor, $options: 'i' },
+    });
+    return count;
+  } else if (searchh[0] == 'email') {
+    const count = User.countDocuments({
+      email: { $regex: searchFor, $options: 'i' },
+    });
+    return count;
+  } else {
+    const count = User.countDocuments({});
+    return count;
   }
 }
 
@@ -121,4 +140,5 @@ module.exports = {
   deleteUser,
   getUserByEmail,
   changePassword,
+  countUsers,
 };

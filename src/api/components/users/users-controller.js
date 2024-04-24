@@ -21,7 +21,7 @@ async function getUsers(request, response, next) {
       page_size
     );
 
-    const count = 1; //temp
+    const count = await usersService.countUsers(search);
     const total_pages = 1; //temp
     const has_previous_page = 1; //temp
     const has_next_page = 1; //temp
