@@ -12,10 +12,14 @@ async function getUsers(request, response, next) {
   try {
     const search = request.query.search || '';
     const sort = request.query.sort || 'email:asc';
-    const users = await usersService.getUsers(search, sort);
-
     const page_number = parseInt(request.query.page_number) - 1 || 0;
-    const page_size = parseInt(request.query.page_size) || 0;
+    const page_size = parseInt(request.query.page_size) || 1 / 0;
+    const users = await usersService.getUsers(
+      search,
+      sort,
+      page_number,
+      page_size
+    );
 
     const count = 1; //temp
     const total_pages = 1; //temp

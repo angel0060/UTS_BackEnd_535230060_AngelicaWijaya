@@ -5,9 +5,33 @@ const { User } = require('../../../models');
  * Get a list of users
  * @returns {Promise}
  */
-async function getUsers(search, sort) {
+async function getUsers(search, sort, page_number, page_size) {
   // search & sort di split
-  return User.find({});
+
+  const searchh = search.split(':');
+  const searchFor = searchh[1];
+
+  sort = sort.split(':');
+  const sortBy = {};
+  sortBy[sort[0]] = sort[1];
+
+  if ((searchh[0] = 'name')) {
+    const users = User.find({
+      name: { $regex: searchFor, $options: 'i' },
+    })
+      .sort(sortBy)
+      .skip(page_number * page_size)
+      .limit(page_size);
+    return users;
+  } else {
+    const users = User.find({
+      email: { $regex: searchFor, $options: 'i' },
+    })
+      .sort(sortBy)
+      .skip(page_number * page_size)
+      .limit(page_size);
+    return users;
+  }
 }
 
 /**
