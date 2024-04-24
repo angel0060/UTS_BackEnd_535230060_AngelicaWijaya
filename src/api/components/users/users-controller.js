@@ -27,7 +27,7 @@ async function getUsers(request, response, next) {
     const has_next_page = 1; //temp
 
     const res = {
-      page_number: page_number,
+      page_number: page_number + 1,
       page_size: page_size,
       count: count,
       total_pages: total_pages,
