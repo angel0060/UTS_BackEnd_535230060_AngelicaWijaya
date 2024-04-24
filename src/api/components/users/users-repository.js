@@ -16,7 +16,7 @@ async function getUsers(search, sort, page_number, page_size) {
 
   if (searchh[0] == 'name') {
     const users = User.find({
-      name: { $regex: searchFor, $options: 'i' },
+      name: { $regex: searchFor },
     })
       .sort(sortBy)
       .skip(page_number * page_size)
@@ -24,7 +24,7 @@ async function getUsers(search, sort, page_number, page_size) {
     return users;
   } else if (searchh[0] == 'email') {
     const users = User.find({
-      email: { $regex: searchFor, $options: 'i' },
+      email: { $regex: searchFor },
     })
       .sort(sortBy)
       .skip(page_number * page_size)
@@ -45,12 +45,12 @@ async function countUsers(search) {
 
   if (searchh[0] == 'name') {
     const count = User.countDocuments({
-      name: { $regex: searchFor, $options: 'i' },
+      name: { $regex: searchFor },
     });
     return count;
   } else if (searchh[0] == 'email') {
     const count = User.countDocuments({
-      email: { $regex: searchFor, $options: 'i' },
+      email: { $regex: searchFor },
     });
     return count;
   } else {
