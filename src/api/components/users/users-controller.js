@@ -22,14 +22,23 @@ async function getUsers(request, response, next) {
     );
 
     const count = await usersService.countUsers(search);
+
     let total_pages = 1;
     if (count > page_size && (count / page_size) % 2 == 0) {
       total_pages = Math.trunc(count / page_size);
     } else if (count > page_size) {
       total_pages = Math.trunc(count / page_size) + 1;
     }
-    const has_previous_page = 1; //temp
-    const has_next_page = 1; //temp
+
+    let has_previous_page = true;
+    if (page_number == 0) {
+      has_previous_page = false;
+    }
+
+    let has_next_page = true;
+    if (page_number + 1 == total_pages) {
+      has_next_page = false;
+    }
 
     const res = {
       page_number: page_number + 1,
