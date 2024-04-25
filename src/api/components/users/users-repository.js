@@ -1,4 +1,3 @@
-const { split } = require('lodash');
 const { User } = require('../../../models');
 
 /**
