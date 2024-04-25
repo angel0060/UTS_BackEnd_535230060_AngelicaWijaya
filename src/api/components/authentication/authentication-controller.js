@@ -2,6 +2,10 @@ const { errorResponder, errorTypes } = require('../../../core/errors');
 const authenticationServices = require('./authentication-service');
 let attempts = 5;
 
+function reset() {
+  attempts = 5;
+}
+
 /**
  * Handle login request
  * @param {object} request - Express request object
@@ -14,6 +18,8 @@ async function login(request, response, next) {
 
   try {
     if (attempts == 0) {
+      setTimeout(reset, 30 * 60 * 1000);
+
       throw errorResponder(
         errorTypes.FORBIDDEN,
         'Too many failed login attempts, try again in 30 minutes'
