@@ -1,5 +1,6 @@
 const { errorResponder, errorTypes } = require('../../../core/errors');
 const authenticationServices = require('./authentication-service');
+let attempts = 5;
 
 /**
  * Handle login request
@@ -12,20 +13,29 @@ async function login(request, response, next) {
   const { email, password } = request.body;
 
   try {
-    // Check login credentials
-    const loginSuccess = await authenticationServices.checkLoginCredentials(
-      email,
-      password
-    );
-
-    if (!loginSuccess) {
+    if (attempts == 0) {
       throw errorResponder(
-        errorTypes.INVALID_CREDENTIALS,
-        'Wrong email or password'
+        errorTypes.FORBIDDEN,
+        'Too many failed login attempts, try again in 30 minutes'
       );
-    }
+    } else {
+      // Check login credentials
+      const loginSuccess = await authenticationServices.checkLoginCredentials(
+        email,
+        password
+      );
 
-    return response.status(200).json(loginSuccess);
+      if (!loginSuccess) {
+        attempts = attempts - 1;
+        throw errorResponder(
+          errorTypes.INVALID_CREDENTIALS,
+          'Wrong email or password'
+        );
+      } else {
+        attempts = 5;
+        return response.status(200).json(loginSuccess);
+      }
+    }
   } catch (error) {
     return next(error);
   }
