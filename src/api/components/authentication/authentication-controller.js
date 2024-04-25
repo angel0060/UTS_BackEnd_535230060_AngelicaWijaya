@@ -2,7 +2,7 @@ const { errorResponder, errorTypes } = require('../../../core/errors');
 const authenticationServices = require('./authentication-service');
 let attempts = 5;
 
-function reset() {
+function resetAttempts() {
   attempts = 5;
 }
 
@@ -18,7 +18,7 @@ async function login(request, response, next) {
 
   try {
     if (attempts == 0) {
-      setTimeout(reset, 30 * 60 * 1000);
+      setTimeout(resetAttempts, 30 * 60 * 1000);
 
       throw errorResponder(
         errorTypes.FORBIDDEN,
@@ -38,7 +38,7 @@ async function login(request, response, next) {
           'Wrong email or password'
         );
       } else {
-        attempts = 5;
+        resetAttempts();
         return response.status(200).json(loginSuccess);
       }
     }
