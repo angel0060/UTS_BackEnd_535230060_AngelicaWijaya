@@ -27,42 +27,7 @@ async function getUsers(request, response, next) {
         'Failed to Get List of Users'
       );
     }
-
-    const count = await usersService.countUsers(search);
-    if (!count) {
-      throw errorResponder(
-        errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to Count Existing Users'
-      );
-    }
-
-    let total_pages = 1;
-    if (count > page_size && (count / page_size) % 2 == 0) {
-      total_pages = Math.trunc(count / page_size);
-    } else if (count > page_size) {
-      total_pages = Math.trunc(count / page_size) + 1;
-    }
-
-    let has_previous_page = true;
-    if (page_number == 0) {
-      has_previous_page = false;
-    }
-
-    let has_next_page = true;
-    if (page_number + 1 == total_pages) {
-      has_next_page = false;
-    }
-
-    const res = {
-      page_number: page_number + 1,
-      page_size: page_size,
-      count: count,
-      total_pages: total_pages,
-      has_previous_page: has_previous_page,
-      has_next_page: has_next_page,
-      data: users,
-    };
-    return response.status(200).json(res);
+    return response.status(200).json(users);
   } catch (error) {
     return next(error);
   }

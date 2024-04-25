@@ -13,6 +13,25 @@ async function getUsers(search, sort, page_number, page_size) {
     page_size
   );
 
+  const count = await usersRepository.countUsers(search);
+
+  let total_pages = 1;
+  if (count > page_size && (count / page_size) % 2 == 0) {
+    total_pages = Math.trunc(count / page_size);
+  } else if (count > page_size) {
+    total_pages = Math.trunc(count / page_size) + 1;
+  }
+
+  let has_previous_page = true;
+  if (page_number == 0) {
+    has_previous_page = false;
+  }
+
+  let has_next_page = true;
+  if (page_number + 1 == total_pages) {
+    has_next_page = false;
+  }
+
   const results = [];
   for (let i = 0; i < users.length; i += 1) {
     const user = users[i];
@@ -23,11 +42,17 @@ async function getUsers(search, sort, page_number, page_size) {
     });
   }
 
-  return results;
-}
+  const res = {
+    page_number: page_number + 1,
+    page_size: page_size,
+    count: count,
+    total_pages: total_pages,
+    has_previous_page: has_previous_page,
+    has_next_page: has_next_page,
+    data: results,
+  };
 
-async function countUsers(search) {
-  return await usersRepository.countUsers(search);
+  return res;
 }
 
 /**
@@ -179,5 +204,4 @@ module.exports = {
   emailIsRegistered,
   checkPassword,
   changePassword,
-  countUsers,
 };
