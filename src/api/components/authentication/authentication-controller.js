@@ -24,7 +24,7 @@ async function login(request, response, next) {
       const checkTime = await authenticationServices.checkTimeOut(email);
       if (!checkTime) {
         authenticationServices.createTimeOut(email);
-      } else if (checkTime + 30) {
+      } else if (checkTime + 30 * 60 * 1000) {
         authenticationServices.deleteAttempt(email);
         authenticationServices.deleteTimeOut(email);
         login();

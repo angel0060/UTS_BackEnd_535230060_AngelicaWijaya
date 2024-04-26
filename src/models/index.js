@@ -4,6 +4,7 @@ const logger = require('../core/logger')('app');
 
 const usersSchema = require('./users-schema');
 const timeOutSchema = require('./time-out-schema');
+const attemptLoginSchema = require('./attempt-login-schema');
 
 mongoose.connect(`${config.database.connection}/${config.database.name}`, {
   useNewUrlParser: true,
@@ -16,10 +17,16 @@ db.once('open', () => {
 
 const User = mongoose.model('users', mongoose.Schema(usersSchema));
 
-const Time = mongoose.model('time out', mongoose.Schema(timeOutSchema));
+const Time = mongoose.model('Login Time Out', mongoose.Schema(timeOutSchema));
+
+const attemptLogin = mongoose.model(
+  'Login attempts',
+  mongoose.Schema(attemptLoginSchema)
+);
 
 module.exports = {
   mongoose,
   User,
   Time,
+  attemptLogin,
 };
