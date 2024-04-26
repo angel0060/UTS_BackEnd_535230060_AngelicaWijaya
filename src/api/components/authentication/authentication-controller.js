@@ -1,10 +1,8 @@
 const { errorResponder, errorTypes } = require('../../../core/errors');
 const authenticationServices = require('./authentication-service');
-let attempts = 5;
 
-function resetAttempts() {
-  attempts = 5;
-}
+const currentDate = new Date().toLocaleDateString();
+const currentTime = new Date().toLocaleTimeString();
 
 /**
  * Handle login request
@@ -16,13 +14,25 @@ function resetAttempts() {
 async function login(request, response, next) {
   const { email, password } = request.body;
 
-  try {
-    if (attempts == 0) {
-      setTimeout(resetAttempts, 30 * 60 * 1000);
+  let attempts = authenticationServices.getAttempt(email);
+  if (!attempts) {
+    attempts = 0;
+  }
 
+  try {
+    if (attempts == 5) {
+      const checkTime = await authenticationServices.checkTimeOut(email);
+      if (!checkTime) {
+        authenticationServices.createTimeOut(email);
+      } else if (checkTime + 30) {
+        authenticationServices.deleteAttempt(email);
+        authenticationServices.deleteTimeOut(email);
+        login();
+      }
       throw errorResponder(
         errorTypes.FORBIDDEN,
-        'Too many failed login attempts, try again in 30 minutes'
+        `Too many failed login attempts, try again in 30 minutes`,
+        `Current time : ${currentDate}`
       );
     } else {
       // Check login credentials
@@ -32,13 +42,15 @@ async function login(request, response, next) {
       );
 
       if (!loginSuccess) {
-        attempts = attempts - 1;
+        attempts = attempts + 1;
+        authenticationServices.saveAttempt(email, attempts);
         throw errorResponder(
           errorTypes.INVALID_CREDENTIALS,
-          'Wrong email or password'
+          `Wrong email or password`,
+          `Login attempt ke-${attempts}, pada tanggal ${currentDate} jam ${currentTime} `
         );
       } else {
-        resetAttempts();
+        authenticationServices.deleteAttempt(email);
         return response.status(200).json(loginSuccess);
       }
     }

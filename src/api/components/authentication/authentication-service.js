@@ -33,6 +33,18 @@ async function checkLoginCredentials(email, password) {
   return null;
 }
 
+async function createTimeOut(email) {
+  const timeOut = await authenticationRepository.createTimeOut(email);
+  return timeOut.time;
+}
+
+async function checkTimeOut(email) {
+  const timeOut = await authenticationRepository.checkTimeOut(email);
+  return timeOut.time;
+}
+
 module.exports = {
   checkLoginCredentials,
+  createTimeOut,
+  checkTimeOut,
 };
