@@ -37,8 +37,7 @@ async function login(request, response, next) {
         const date = checkTime.getDate();
         const time = checkTime.getTime();
 
-        if (currentDate == date && currentTime > time + 2 * 60 * 1000) {
-          // logika masih kurang tepat? sama attempt knp dari 2 ya? di db ada 2
+        if (currentDate == date && currentTime > time + 30 * 60 * 1000) {
           const success = await authenticationServices.deleteAttempt(email);
           if (!success) {
             throw errorResponder(
