@@ -1,9 +1,6 @@
 const { errorResponder, errorTypes } = require('../../../core/errors');
 const authenticationServices = require('./authentication-service');
 
-const currentDate = new Date().toLocaleDateString();
-const currentTime = new Date().toLocaleTimeString();
-
 /**
  * Handle login request
  * @param {object} request - Express request object
@@ -14,25 +11,55 @@ const currentTime = new Date().toLocaleTimeString();
 async function login(request, response, next) {
   const { email, password } = request.body;
 
-  let attempts = authenticationServices.getAttempt(email);
+  let attempts = await authenticationServices.getAttempt(email);
   if (!attempts) {
     attempts = 0;
   }
 
   try {
     if (attempts == 5) {
+      const currentDateTime = new Date().toLocaleString();
       const checkTime = await authenticationServices.checkTimeOut(email);
+      console.log(checkTime);
+      console.log(currentDateTime);
+
       if (!checkTime) {
-        authenticationServices.createTimeOut(email);
-      } else if (checkTime + 30 * 60 * 1000) {
-        authenticationServices.deleteAttempt(email);
-        authenticationServices.deleteTimeOut(email);
-        login();
+        const create = await authenticationServices.createTimeOut(email);
+        if (!create) {
+          throw errorResponder(
+            errorTypes.UNPROCESSABLE_ENTITY,
+            'Failed to create time out'
+          );
+        }
+      } else {
+        const currentDate = new Date().getDate();
+        const currentTime = new Date().getTime();
+        const date = checkTime.getDate();
+        const time = checkTime.getTime();
+
+        if (currentDate == date && currentTime > time + 2 * 60 * 1000) {
+          // logika masih kurang tepat? sama attempt knp dari 2 ya? di db ada 2
+          const success = await authenticationServices.deleteAttempt(email);
+          if (!success) {
+            throw errorResponder(
+              errorTypes.UNPROCESSABLE_ENTITY,
+              'Failed to delete login attempt'
+            );
+          }
+          const timeOut = await authenticationServices.deleteTimeOut(email);
+          if (!timeOut) {
+            throw errorResponder(
+              errorTypes.UNPROCESSABLE_ENTITY,
+              'Failed to delete time out'
+            );
+          }
+          login(request, response, next);
+        }
       }
       throw errorResponder(
         errorTypes.FORBIDDEN,
         `Too many failed login attempts, try again in 30 minutes`,
-        `Current time : ${currentDate}`
+        `Current date & time : ${currentDateTime}`
       );
     } else {
       // Check login credentials
@@ -43,14 +70,44 @@ async function login(request, response, next) {
 
       if (!loginSuccess) {
         attempts = attempts + 1;
-        authenticationServices.saveAttempt(email, attempts);
+        if (attempts == 1) {
+          const success = await authenticationServices.saveAttempt(
+            email,
+            attempts
+          );
+          if (!success) {
+            throw errorResponder(
+              errorTypes.UNPROCESSABLE_ENTITY,
+              'Failed to save login attempt'
+            );
+          }
+        } else {
+          const success = await authenticationServices.updateAttempt(
+            email,
+            attempts
+          );
+          if (!success) {
+            throw errorResponder(
+              errorTypes.UNPROCESSABLE_ENTITY,
+              'Failed to update login attempt'
+            );
+          }
+        }
+        const currentDate = new Date().toLocaleDateString();
+        const currentTime = new Date().toLocaleTimeString();
         throw errorResponder(
           errorTypes.INVALID_CREDENTIALS,
           `Wrong email or password`,
-          `Login attempt ke-${attempts}, pada tanggal ${currentDate} jam ${currentTime} `
+          `Gagal login. Login attempt ke-${attempts}, pada tanggal ${currentDate} jam ${currentTime} `
         );
       } else {
-        authenticationServices.deleteAttempt(email);
+        const success = await authenticationServices.deleteAttempt(email);
+        if (!success) {
+          throw errorResponder(
+            errorTypes.UNPROCESSABLE_ENTITY,
+            'Failed to delete login attempt'
+          );
+        }
         return response.status(200).json(loginSuccess);
       }
     }

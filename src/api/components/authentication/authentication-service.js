@@ -34,17 +34,72 @@ async function checkLoginCredentials(email, password) {
 }
 
 async function createTimeOut(email) {
-  const timeOut = await authenticationRepository.createTimeOut(email);
-  return timeOut.time;
+  const currentTime = new Date().toLocaleString();
+  const timeOut = await authenticationRepository.createTimeOut(
+    email,
+    currentTime
+  );
+  if (!timeOut) {
+    return null;
+  }
+  return true;
 }
 
 async function checkTimeOut(email) {
   const timeOut = await authenticationRepository.checkTimeOut(email);
+  if (!timeOut) {
+    return null;
+  }
   return timeOut.time;
+}
+
+async function deleteTimeOut(email) {
+  const timeOut = await authenticationRepository.deleteTimeOut(email);
+  if (!timeOut) {
+    return null;
+  }
+  return true;
+}
+
+async function saveAttempt(email, attempts) {
+  const attempt = await authenticationRepository.saveAttempt(email, attempts);
+  if (!attempt) {
+    return null;
+  }
+  return true;
+}
+
+async function updateAttempt(email, attempts) {
+  const attempt = await authenticationRepository.updateAttempt(email, attempts);
+  if (!attempt) {
+    return null;
+  }
+  return true;
+}
+
+async function getAttempt(email) {
+  const attemptt = await authenticationRepository.getAttempt(email);
+  if (!attemptt) {
+    return null;
+  }
+  return attemptt.attempt;
+}
+
+async function deleteAttempt(email) {
+  const attempt = await authenticationRepository.deleteAttempt(email);
+  if (!attempt) {
+    return null;
+  }
+  return attempt;
 }
 
 module.exports = {
   checkLoginCredentials,
   createTimeOut,
   checkTimeOut,
+  deleteTimeOut,
+  saveAttempt,
+  updateAttempt,
+  getAttempt,
+  deleteAttempt,
 };
