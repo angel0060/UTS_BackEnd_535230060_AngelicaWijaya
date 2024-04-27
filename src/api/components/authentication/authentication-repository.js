@@ -9,32 +9,32 @@ async function getUserByEmail(email) {
   return User.findOne({ email });
 }
 
-async function createTimeOut(email, time) {
+async function createTimeOut(ip, time) {
   return Time.create({
-    email,
+    ip,
     time,
   });
 }
 
-async function checkTimeOut(email) {
-  return Time.findOne({ email });
+async function checkTimeOut(ip) {
+  return Time.findOne({ ip });
 }
 
-async function deleteTimeOut(email) {
-  return Time.deleteOne({ email: email });
+async function deleteTimeOut(ip) {
+  return Time.deleteOne({ ip: ip });
 }
 
-async function saveAttempt(email, attempt) {
+async function saveAttempt(ip, attempt) {
   return attemptLogin.create({
-    email,
+    ip,
     attempt,
   });
 }
 
-async function updateAttempt(email, attempt) {
+async function updateAttempt(ip, attempt) {
   return attemptLogin.updateOne(
     {
-      email: email,
+      ip: ip,
     },
     {
       $set: {
@@ -44,12 +44,12 @@ async function updateAttempt(email, attempt) {
   );
 }
 
-async function getAttempt(email) {
-  return attemptLogin.findOne({ email });
+async function getAttempt(ip) {
+  return attemptLogin.findOne({ ip });
 }
 
-async function deleteAttempt(email) {
-  return attemptLogin.deleteOne({ email: email });
+async function deleteAttempt(ip) {
+  return attemptLogin.deleteOne({ ip: ip });
 }
 
 module.exports = {

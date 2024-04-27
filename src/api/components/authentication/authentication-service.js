@@ -22,71 +22,70 @@ async function checkLoginCredentials(email, password) {
   // login attempt as successful when the `user` is found (by email) and
   // the password matches.
   if (user && passwordChecked) {
+    const currentDateTime = new Date().toLocaleString();
     return {
       email: user.email,
       name: user.name,
       user_id: user.id,
       token: generateToken(user.email, user.id),
+      message: `Successful Login at ${currentDateTime}`,
     };
   }
 
   return null;
 }
 
-async function createTimeOut(email) {
+async function createTimeOut(ip) {
   const currentTime = new Date().toLocaleString();
-  const timeOut = await authenticationRepository.createTimeOut(
-    email,
-    currentTime
-  );
+  const timeOut = await authenticationRepository.createTimeOut(ip, currentTime);
   if (!timeOut) {
     return null;
   }
   return true;
 }
 
-async function checkTimeOut(email) {
-  const timeOut = await authenticationRepository.checkTimeOut(email);
+async function checkTimeOut(ip) {
+  const timeOut = await authenticationRepository.checkTimeOut(ip);
   if (!timeOut) {
     return null;
   }
   return timeOut.time;
 }
 
-async function deleteTimeOut(email) {
-  const timeOut = await authenticationRepository.deleteTimeOut(email);
+async function deleteTimeOut(ip) {
+  const timeOut = await authenticationRepository.deleteTimeOut(ip);
   if (!timeOut) {
     return null;
   }
   return true;
 }
 
-async function saveAttempt(email, attempts) {
-  const attempt = await authenticationRepository.saveAttempt(email, attempts);
+async function saveAttempt(ip, attempts) {
+  const attempt = await authenticationRepository.saveAttempt(ip, attempts);
   if (!attempt) {
     return null;
   }
   return true;
 }
 
-async function updateAttempt(email, attempts) {
-  const attempt = await authenticationRepository.updateAttempt(email, attempts);
+async function updateAttempt(ip, attempts) {
+  const attempt = await authenticationRepository.updateAttempt(ip, attempts);
   if (!attempt) {
     return null;
   }
   return true;
 }
 
-async function getAttempt(email) {
-  const attemptt = await authenticationRepository.getAttempt(email);
+async function getAttempt(ip) {
+  const attemptt = await authenticationRepository.getAttempt(ip);
   if (!attemptt) {
     return null;
   }
   return attemptt.attempt;
 }
 
-async function deleteAttempt(email) {
-  const attempt = await authenticationRepository.deleteAttempt(email);
+async function deleteAttempt(ip) {
+  const attempt = await authenticationRepository.deleteAttempt(ip);
   if (!attempt) {
     return null;
   }

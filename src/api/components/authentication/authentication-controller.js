@@ -11,20 +11,20 @@ const authenticationServices = require('./authentication-service');
 async function login(request, response, next) {
   const { email, password } = request.body;
 
-  let attempts = await authenticationServices.getAttempt(email);
-  if (!attempts) {
-    attempts = 0;
-  }
-
   try {
+    const ip = request.ip;
+    let attempts = await authenticationServices.getAttempt(ip);
+    if (!attempts) {
+      attempts = 0;
+    }
+
     if (attempts == 5) {
-      const currentDateTime = new Date().toLocaleString();
-      const checkTime = await authenticationServices.checkTimeOut(email);
-      console.log(checkTime);
-      console.log(currentDateTime);
+      const currentDate = new Date().toLocaleDateString();
+      const currentTime = new Date().toLocaleTimeString();
+      const checkTime = await authenticationServices.checkTimeOut(ip);
 
       if (!checkTime) {
-        const create = await authenticationServices.createTimeOut(email);
+        const create = await authenticationServices.createTimeOut(ip);
         if (!create) {
           throw errorResponder(
             errorTypes.UNPROCESSABLE_ENTITY,
@@ -32,20 +32,20 @@ async function login(request, response, next) {
           );
         }
       } else {
-        const currentDate = new Date().getDate();
-        const currentTime = new Date().getTime();
+        const currentD = new Date().getDate();
+        const currentT = new Date().getTime();
         const date = checkTime.getDate();
         const time = checkTime.getTime();
 
-        if (currentDate == date && currentTime > time + 30 * 60 * 1000) {
-          const success = await authenticationServices.deleteAttempt(email);
+        if (currentD == date && currentT > time + 30 * 60 * 1000) {
+          const success = await authenticationServices.deleteAttempt(ip);
           if (!success) {
             throw errorResponder(
               errorTypes.UNPROCESSABLE_ENTITY,
               'Failed to delete login attempt'
             );
           }
-          const timeOut = await authenticationServices.deleteTimeOut(email);
+          const timeOut = await authenticationServices.deleteTimeOut(ip);
           if (!timeOut) {
             throw errorResponder(
               errorTypes.UNPROCESSABLE_ENTITY,
@@ -58,7 +58,7 @@ async function login(request, response, next) {
       throw errorResponder(
         errorTypes.FORBIDDEN,
         `Too many failed login attempts, try again in 30 minutes`,
-        `Current date & time : ${currentDateTime}`
+        `Error terjadi pada tanggal ${currentDate} jam ${currentTime}`
       );
     } else {
       // Check login credentials
@@ -71,7 +71,7 @@ async function login(request, response, next) {
         attempts = attempts + 1;
         if (attempts == 1) {
           const success = await authenticationServices.saveAttempt(
-            email,
+            ip,
             attempts
           );
           if (!success) {
@@ -82,7 +82,7 @@ async function login(request, response, next) {
           }
         } else {
           const success = await authenticationServices.updateAttempt(
-            email,
+            ip,
             attempts
           );
           if (!success) {
@@ -94,13 +94,20 @@ async function login(request, response, next) {
         }
         const currentDate = new Date().toLocaleDateString();
         const currentTime = new Date().toLocaleTimeString();
+        if (attempts == 5) {
+          throw errorResponder(
+            errorTypes.INVALID_CREDENTIALS,
+            `Wrong email or password`,
+            `Gagal login. Login attempt ke-5 (limit reached), pada tanggal ${currentDate} jam ${currentTime} `
+          );
+        }
         throw errorResponder(
           errorTypes.INVALID_CREDENTIALS,
           `Wrong email or password`,
           `Gagal login. Login attempt ke-${attempts}, pada tanggal ${currentDate} jam ${currentTime} `
         );
       } else {
-        const success = await authenticationServices.deleteAttempt(email);
+        const success = await authenticationServices.deleteAttempt(ip);
         if (!success) {
           throw errorResponder(
             errorTypes.UNPROCESSABLE_ENTITY,

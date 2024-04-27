@@ -1,5 +1,5 @@
 const attemptLoginSchema = {
-  email: String,
+  ip: String,
   attempt: Number,
 };
 

@@ -1,5 +1,5 @@
 const timeOutSchema = {
-  email: String,
+  ip: String,
   time: Date,
 };
 
