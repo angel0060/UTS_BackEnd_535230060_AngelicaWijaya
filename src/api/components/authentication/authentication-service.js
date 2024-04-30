@@ -35,6 +35,11 @@ async function checkLoginCredentials(email, password) {
   return null;
 }
 
+/**
+ * Create time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
 async function createTimeOut(ip) {
   const currentTime = new Date().toLocaleString();
   const timeOut = await authenticationRepository.createTimeOut(ip, currentTime);
@@ -44,6 +49,11 @@ async function createTimeOut(ip) {
   return true;
 }
 
+/**
+ * Check time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
 async function checkTimeOut(ip) {
   const timeOut = await authenticationRepository.checkTimeOut(ip);
   if (!timeOut) {
@@ -52,6 +62,11 @@ async function checkTimeOut(ip) {
   return timeOut.time;
 }
 
+/**
+ * Delete time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
 async function deleteTimeOut(ip) {
   const timeOut = await authenticationRepository.deleteTimeOut(ip);
   if (!timeOut) {
@@ -60,6 +75,12 @@ async function deleteTimeOut(ip) {
   return true;
 }
 
+/**
+ * Save Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
 async function saveAttempt(ip, attempts) {
   const attempt = await authenticationRepository.saveAttempt(ip, attempts);
   if (!attempt) {
@@ -68,6 +89,12 @@ async function saveAttempt(ip, attempts) {
   return true;
 }
 
+/**
+ * Update Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
 async function updateAttempt(ip, attempts) {
   const attempt = await authenticationRepository.updateAttempt(ip, attempts);
   if (!attempt) {
@@ -76,6 +103,12 @@ async function updateAttempt(ip, attempts) {
   return true;
 }
 
+/**
+ * Update Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
 async function getAttempt(ip) {
   const attemptt = await authenticationRepository.getAttempt(ip);
   if (!attemptt) {
@@ -84,6 +117,12 @@ async function getAttempt(ip) {
   return attemptt.attempt;
 }
 
+/**
+ * Delete Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
 async function deleteAttempt(ip) {
   const attempt = await authenticationRepository.deleteAttempt(ip);
   if (!attempt) {

@@ -9,6 +9,11 @@ async function getUserByEmail(email) {
   return User.findOne({ email });
 }
 
+/**
+ * Create time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
 async function createTimeOut(ip, time) {
   return Time.create({
     ip,
@@ -16,14 +21,30 @@ async function createTimeOut(ip, time) {
   });
 }
 
+/**
+ * Check time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
 async function checkTimeOut(ip) {
   return Time.findOne({ ip });
 }
 
+/**
+ * Delete time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
 async function deleteTimeOut(ip) {
   return Time.deleteOne({ ip: ip });
 }
 
+/**
+ * Save Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
 async function saveAttempt(ip, attempt) {
   return attemptLogin.create({
     ip,
@@ -31,6 +52,12 @@ async function saveAttempt(ip, attempt) {
   });
 }
 
+/**
+ * Update Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
 async function updateAttempt(ip, attempt) {
   return attemptLogin.updateOne(
     {
@@ -44,10 +71,22 @@ async function updateAttempt(ip, attempt) {
   );
 }
 
+/**
+ * Get Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
 async function getAttempt(ip) {
   return attemptLogin.findOne({ ip });
 }
 
+/**
+ * Delete Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
 async function deleteAttempt(ip) {
   return attemptLogin.deleteOne({ ip: ip });
 }
