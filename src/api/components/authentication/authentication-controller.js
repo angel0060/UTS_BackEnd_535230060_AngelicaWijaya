@@ -37,7 +37,10 @@ async function login(request, response, next) {
         const date = checkTime.getDate();
         const time = checkTime.getTime();
 
-        if (currentD == date && currentT > time + 30 * 60 * 1000) {
+        if (
+          currentD != date ||
+          (currentD == date && currentT > time + 30 * 60 * 1000)
+        ) {
           const success = await authenticationServices.deleteAttempt(ip);
           if (!success) {
             throw errorResponder(
