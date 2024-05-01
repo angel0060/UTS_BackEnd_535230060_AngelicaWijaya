@@ -74,8 +74,10 @@ async function login(request, response, next) {
             );
           }
 
-          // memanggil ulang fungsi login
-          login(request, response, next);
+          // memanggil ulang fungsi login setelah menghapus attempt di database
+          if (success == true) {
+            login(request, response, next);
+          }
         }
       }
       // menampilkan error time out

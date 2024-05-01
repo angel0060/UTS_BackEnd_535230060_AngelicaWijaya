@@ -104,7 +104,7 @@ async function updateAttempt(ip, attempts) {
 }
 
 /**
- * Update Attempt
+ * Get Attempt
  * @param {string} ip - IP address
  * @param {number} attempts - Attempts
  * @returns {Promise}
@@ -128,7 +128,7 @@ async function deleteAttempt(ip) {
   if (!attempt) {
     return null;
   }
-  return attempt;
+  return true;
 }
 
 module.exports = {
