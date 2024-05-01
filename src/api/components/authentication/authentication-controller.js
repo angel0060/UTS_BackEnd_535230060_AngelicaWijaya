@@ -78,6 +78,17 @@ async function login(request, response, next) {
           if (success == true) {
             login(request, response, next);
           }
+        } else {
+          // untuk menampilkan kapan time out berakhir
+          const Date = checkTime.toLocaleDateString();
+          checkTime.setTime(checkTime.getTime() + 30 * 60 * 1000);
+          const Time = checkTime.toLocaleTimeString();
+
+          // menampilkan error jika time out belum habis
+          throw errorResponder(
+            errorTypes.FORBIDDEN,
+            `Too many failed login attempts, try again at ${Date} ${Time}`
+          );
         }
       }
       // menampilkan error time out
