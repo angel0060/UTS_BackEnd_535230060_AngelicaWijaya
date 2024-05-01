@@ -49,10 +49,6 @@ async function checkTimeOut(ip) {
   // mengecek apakah ada waktu time out di database
   const checkTime = await checkingTimeOut(ip);
 
-  // // tanggal dan waktu untuk return message display error
-  // checkTime.setTime(checkTime.getTime() + 1 * 60 * 1000);
-  // const Time = checkTime.toLocaleString();
-
   if (!checkTime) {
     const time = new Date().toLocaleString();
     // jika tidak ada, maka membuat time out baru

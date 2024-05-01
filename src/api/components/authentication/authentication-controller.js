@@ -27,7 +27,7 @@ async function login(request, response, next) {
       const currentDate = new Date().toLocaleDateString();
       const currentTime = new Date().toLocaleTimeString();
       if (timeOut == false) {
-        // memanggil ulang fungsi login setelah menghapus attempt di database
+        // memanggil ulang fungsi login
         login(request, response, next);
       } else {
         // menampilkan error time out
