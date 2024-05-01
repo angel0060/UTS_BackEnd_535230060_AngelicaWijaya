@@ -12,6 +12,7 @@ async function getUserByEmail(email) {
 /**
  * Create time out
  * @param {string} ip - IP address
+ * @param {date} time - Time
  * @returns {Promise}
  */
 async function createTimeOut(ip, time) {
@@ -46,10 +47,11 @@ async function deleteTimeOut(ip) {
  * @returns {Promise}
  */
 async function saveAttempt(ip, attempt) {
-  return attemptLogin.create({
+  attemptLogin.create({
     ip,
     attempt,
   });
+  return true;
 }
 
 /**
@@ -74,7 +76,6 @@ async function updateAttempt(ip, attempt) {
 /**
  * Get Attempt
  * @param {string} ip - IP address
- * @param {number} attempts - Attempts
  * @returns {Promise}
  */
 async function getAttempt(ip) {
@@ -84,7 +85,6 @@ async function getAttempt(ip) {
 /**
  * Delete Attempt
  * @param {string} ip - IP address
- * @param {number} attempts - Attempts
  * @returns {Promise}
  */
 async function deleteAttempt(ip) {

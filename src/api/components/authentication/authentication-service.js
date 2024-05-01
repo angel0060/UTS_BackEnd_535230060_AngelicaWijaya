@@ -4,11 +4,12 @@ const { passwordMatched } = require('../../../utils/password');
 
 /**
  * Check username and password for login.
+ * @param {string} ip - IP address
  * @param {string} email - Email
  * @param {string} password - Password
  * @returns {object} An object containing, among others, the JWT token if the email and password are matched. Otherwise returns null.
  */
-async function checkLoginCredentials(email, password) {
+async function checkLoginCredentials(ip, email, password) {
   const user = await authenticationRepository.getUserByEmail(email);
 
   // We define default user password here as '<RANDOM_PASSWORD_FILTER>'
@@ -22,6 +23,10 @@ async function checkLoginCredentials(email, password) {
   // login attempt as successful when the `user` is found (by email) and
   // the password matches.
   if (user && passwordChecked) {
+    // jika login berhasil, attempt di hapus
+    await authenticationRepository.deleteAttempt(ip);
+
+    // inisialisasi tanggal untuk message
     const currentDateTime = new Date().toLocaleString();
     return {
       email: user.email,
@@ -36,25 +41,80 @@ async function checkLoginCredentials(email, password) {
 }
 
 /**
- * Create time out
- * @param {string} ip - IP address
- * @returns {Promise}
- */
-async function createTimeOut(ip) {
-  const currentTime = new Date().toLocaleString();
-  const timeOut = await authenticationRepository.createTimeOut(ip, currentTime);
-  if (!timeOut) {
-    return null;
-  }
-  return true;
-}
-
-/**
  * Check time out
  * @param {string} ip - IP address
  * @returns {Promise}
  */
 async function checkTimeOut(ip) {
+  // mengecek apakah ada waktu time out di database
+  const checkTime = await checkingTimeOut(ip);
+
+  // // tanggal dan waktu untuk return message display error
+  // checkTime.setTime(checkTime.getTime() + 1 * 60 * 1000);
+  // const Time = checkTime.toLocaleString();
+
+  if (!checkTime) {
+    const time = new Date().toLocaleString();
+    // jika tidak ada, maka membuat time out baru
+    await authenticationRepository.createTimeOut(ip, time);
+    return true;
+  } else {
+    // jika sudah ada data time out di database
+
+    // inisialisasi variabel untuk kondisi if time out
+    // waktu sekarang
+    const currentD = new Date().getDate();
+    const currentT = new Date().getTime();
+    // waktu yang telah disimpan di database
+    const date = checkTime.getDate();
+    const time = checkTime.getTime();
+
+    // membuat kondisi if time out
+    if (
+      // jika sudah berbeda hari
+      currentD != date ||
+      // atau jika pada hari yang sama, waktu sekarang sudah melebihi waktu database + 30 menit
+      (currentD == date && currentT > time + 30 * 60 * 1000)
+    ) {
+      // menghapus attempt di database
+      await authenticationRepository.deleteAttempt(ip);
+
+      // menghapus time out di database
+      await authenticationRepository.deleteTimeOut(ip);
+
+      return false;
+    } else {
+      return true;
+    }
+  }
+}
+
+/**
+ * Login Failed
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
+async function loginFailed(ip, attempts) {
+  if (attempts == 1) {
+    // jika attempt yg pertama, maka menyimpan attempt ke database
+    const success = await authenticationRepository.saveAttempt(ip, attempts);
+    if (success == true) {
+      return true;
+    }
+  } else {
+    // jika attempt yg kedua dan seterusnya, maka meng-update attempt di database
+    const success = await authenticationRepository.updateAttempt(ip, attempts);
+    return true;
+  }
+}
+
+/**
+ * Checking time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
+async function checkingTimeOut(ip) {
   const timeOut = await authenticationRepository.checkTimeOut(ip);
   if (!timeOut) {
     return null;
@@ -63,50 +123,8 @@ async function checkTimeOut(ip) {
 }
 
 /**
- * Delete time out
- * @param {string} ip - IP address
- * @returns {Promise}
- */
-async function deleteTimeOut(ip) {
-  const timeOut = await authenticationRepository.deleteTimeOut(ip);
-  if (!timeOut) {
-    return null;
-  }
-  return true;
-}
-
-/**
- * Save Attempt
- * @param {string} ip - IP address
- * @param {number} attempts - Attempts
- * @returns {Promise}
- */
-async function saveAttempt(ip, attempts) {
-  const attempt = await authenticationRepository.saveAttempt(ip, attempts);
-  if (!attempt) {
-    return null;
-  }
-  return true;
-}
-
-/**
- * Update Attempt
- * @param {string} ip - IP address
- * @param {number} attempts - Attempts
- * @returns {Promise}
- */
-async function updateAttempt(ip, attempts) {
-  const attempt = await authenticationRepository.updateAttempt(ip, attempts);
-  if (!attempt) {
-    return null;
-  }
-  return true;
-}
-
-/**
  * Get Attempt
  * @param {string} ip - IP address
- * @param {number} attempts - Attempts
  * @returns {Promise}
  */
 async function getAttempt(ip) {
@@ -117,27 +135,10 @@ async function getAttempt(ip) {
   return attemptt.attempt;
 }
 
-/**
- * Delete Attempt
- * @param {string} ip - IP address
- * @param {number} attempts - Attempts
- * @returns {Promise}
- */
-async function deleteAttempt(ip) {
-  const attempt = await authenticationRepository.deleteAttempt(ip);
-  if (!attempt) {
-    return null;
-  }
-  return true;
-}
-
 module.exports = {
   checkLoginCredentials,
-  createTimeOut,
+  checkingTimeOut,
   checkTimeOut,
-  deleteTimeOut,
-  saveAttempt,
-  updateAttempt,
+  loginFailed,
   getAttempt,
-  deleteAttempt,
 };
