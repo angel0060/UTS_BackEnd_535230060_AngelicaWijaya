@@ -18,7 +18,7 @@ async function getAccounts(search, sort, page_number, page_size) {
   const sortBy = {};
   sortBy[sort[0]] = sort[1]; // menentukan sort berdasarkan kategori apa dan dengan urutan apa
 
-  const accounts = 0; // inisialisasi variabel
+  let accounts = 0; // inisialisasi variabel
 
   // membuat kondisi if yang sesuai untuk filter data
   if (searchh[0] == 'name') {
@@ -65,7 +65,7 @@ async function countAccounts(search) {
   const searchh = search.split(':');
   const searchFor = searchh[1];
 
-  const count = 0; // inisialisasi variabel
+  let count = 0; // inisialisasi variabel
 
   // membuat kondisi if yang sesuai untuk filter data
   if (searchh[0] == 'name') {
@@ -105,9 +105,10 @@ async function getAccount(id) {
  * @param {string} email - Email
  * @param {string} phone - Phone Number
  * @param {string} pin - Hashed pin
+ * @param {number} balance - Balance
  * @returns {Promise}
  */
-async function createAccount(name, email, phone, pin) {
+async function createAccount(name, email, phone, pin, balance) {
   return Account.create({
     name,
     email,

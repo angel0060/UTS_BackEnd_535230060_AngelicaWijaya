@@ -18,7 +18,7 @@ async function getUsers(search, sort, page_number, page_size) {
   const sortBy = {};
   sortBy[sort[0]] = sort[1]; // menentukan sort berdasarkan kategori apa dan dengan urutan apa
 
-  const users = 0; // inisialisasi variabel
+  let users = 0; // inisialisasi variabel
 
   // membuat kondisi if yang sesuai untuk filter data
   if (searchh[0] == 'name') {
@@ -57,7 +57,7 @@ async function countUsers(search) {
   const searchh = search.split(':');
   const searchFor = searchh[1];
 
-  const count = 0; // inisialisasi variabel
+  let count = 0; // inisialisasi variabel
 
   // membuat kondisi if yang sesuai untuk filter data
   if (searchh[0] == 'name') {

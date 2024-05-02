@@ -310,18 +310,8 @@ async function transferBalance(accountId, transfer, receiverId) {
     return null;
   }
 
-  // mengambil data account yang akan menerima transfer saldo
-  const receiver = await digitalBankingRepository.getAccount(receiverId);
-
-  // Check if receiver account not found
-  if (!receiver) {
-    return null;
-  }
-
   // inisialisasi variabel untuk mengurangi saldo pengirim
   const subtractBalance = account.balance - transfer;
-  // inisialisasi variabel untuk menambah saldo penerima
-  const addBalance = receiver.balance + transfer;
 
   const substractSuccess = await digitalBankingRepository.changeBalance(
     accountId,
@@ -331,8 +321,19 @@ async function transferBalance(accountId, transfer, receiverId) {
     return null;
   }
 
+  // mengambil data account yang akan menerima transfer saldo
+  const receiver = await digitalBankingRepository.getAccount(receiverId);
+
+  // Check if receiver account not found
+  if (!receiver) {
+    return null;
+  }
+
+  // inisialisasi variabel untuk menambah saldo penerima
+  const addBalance = receiver.balance + transfer;
+
   const addSuccess = await digitalBankingRepository.changeBalance(
-    accountId,
+    receiverId,
     addBalance
   );
   if (!addSuccess) {
