@@ -30,10 +30,22 @@ const Account = mongoose.model(
   mongoose.Schema(accountSchema)
 );
 
+const bankTime = mongoose.model(
+  'Digital Banking Login Time Out',
+  mongoose.Schema(timeOutSchema)
+);
+
+const bankLogin = mongoose.model(
+  'Digital Banking Login attempts',
+  mongoose.Schema(attemptLoginSchema)
+);
+
 module.exports = {
   mongoose,
   User,
   Time,
   attemptLogin,
   Account,
+  bankTime,
+  bankLogin,
 };

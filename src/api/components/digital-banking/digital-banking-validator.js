@@ -1,6 +1,13 @@
 const joi = require('joi');
 
 module.exports = {
+  login: {
+    body: {
+      email: joi.string().email().required().label('Email'),
+      pin: joi.string().min(6).max(6).required().label('PIN'),
+    },
+  },
+
   createAccount: {
     body: {
       id_number: joi.string().required().label('National Identity Number'),

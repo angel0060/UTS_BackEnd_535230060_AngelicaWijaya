@@ -1,5 +1,135 @@
 const digitalBankingRepository = require('./digital-banking-repository');
 const { hashPassword, passwordMatched } = require('../../../utils/password');
+const { generateToken } = require('../../../utils/session-token');
+
+/**
+ * Check account email and pin for login.
+ * @param {string} ip - IP address
+ * @param {string} email - Email
+ * @param {string} pin - PIN
+ * @returns {object} An object containing, among others, the JWT token if the email and pin are matched. Otherwise returns null.
+ */
+async function checkLoginCredentials(ip, email, pin) {
+  const account = await digitalBankingRepository.getAccountByEmail(email);
+
+  // We define default account pin here as '<RANDOM_PASSWORD_FILTER>'
+  // to handle the case when the account login is invalid. We still want to
+  // check the pin anyway, so that it prevents the attacker in
+  // guessing login credentials by looking at the processing time.
+  const accountPin = account ? account.pin : '<RANDOM_PIN_FILLER>';
+  const pinChecked = await passwordMatched(pin, accountPin);
+
+  // Because we always check the pin (see above comment), we define the
+  // login attempt as successful when the `account` is found (by email) and
+  // the pin matches.
+  if (account && pinChecked) {
+    // jika login berhasil, attempt di hapus
+    await digitalBankingRepository.deleteAttempt(ip);
+
+    // inisialisasi tanggal untuk message
+    const currentDateTime = new Date().toLocaleString();
+    return {
+      email: account.email,
+      name: account.name,
+      user_id: account.id,
+      token: generateToken(account.email, account.id),
+      message: `Successful Login at ${currentDateTime}`,
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Check time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
+async function checkTimeOut(ip) {
+  // mengecek apakah ada waktu time out di database
+  const checkTime = await checkingTimeOut(ip);
+
+  if (!checkTime) {
+    const time = new Date().toLocaleString();
+    // jika tidak ada, maka membuat time out baru
+    await digitalBankingRepository.createTimeOut(ip, time);
+    return true;
+  } else {
+    // jika sudah ada data time out di database
+
+    // inisialisasi variabel untuk kondisi if time out
+    // waktu sekarang
+    const currentD = new Date().getDate();
+    const currentT = new Date().getTime();
+    // waktu yang telah disimpan di database
+    const date = checkTime.getDate();
+    const time = checkTime.getTime();
+
+    // membuat kondisi if time out
+    if (
+      // jika sudah berbeda hari
+      currentD != date ||
+      // atau jika pada hari yang sama, waktu sekarang sudah melebihi waktu database + 30 menit
+      (currentD == date && currentT > time + 30 * 60 * 1000)
+    ) {
+      // menghapus attempt di database
+      await digitalBankingRepository.deleteAttempt(ip);
+
+      // menghapus time out di database
+      await digitalBankingRepository.deleteTimeOut(ip);
+
+      return false;
+    } else {
+      return true;
+    }
+  }
+}
+
+/**
+ * Login Failed
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
+async function loginFailed(ip, attempts) {
+  if (attempts == 1) {
+    // jika attempt yg pertama, maka menyimpan attempt ke database
+    const success = await digitalBankingRepository.saveAttempt(ip, attempts);
+    if (success == true) {
+      return true;
+    }
+  } else {
+    // jika attempt yg kedua dan seterusnya, maka meng-update attempt di database
+    const success = await digitalBankingRepository.updateAttempt(ip, attempts);
+    return true;
+  }
+}
+
+/**
+ * Checking time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
+async function checkingTimeOut(ip) {
+  const timeOut = await digitalBankingRepository.checkTimeOut(ip);
+  if (!timeOut) {
+    return null;
+  }
+  return timeOut.time;
+}
+
+/**
+ * Get Attempt
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
+async function getAttempt(ip) {
+  const attemptt = await digitalBankingRepository.getAttempt(ip);
+  if (!attemptt) {
+    return null;
+  }
+  return attemptt.attempt;
+}
 
 /**
  * Get list of accounts
@@ -203,7 +333,8 @@ async function deleteAccount(id) {
  * @returns {boolean}
  */
 async function idNumberIsRegistered(id_number) {
-  const account = await digitalBankingRepository.getUserByIdNumber(id_number);
+  const account =
+    await digitalBankingRepository.getAccountByIdNumber(id_number);
 
   if (account) {
     return true;
@@ -218,7 +349,7 @@ async function idNumberIsRegistered(id_number) {
  * @returns {boolean}
  */
 async function emailIsRegistered(email) {
-  const account = await digitalBankingRepository.getUserByEmail(email);
+  const account = await digitalBankingRepository.getAccountByEmail(email);
 
   if (account) {
     return true;
@@ -233,7 +364,7 @@ async function emailIsRegistered(email) {
  * @returns {boolean}
  */
 async function phoneIsRegistered(phone) {
-  const account = await digitalBankingRepository.getUserByPhone(phone);
+  const account = await digitalBankingRepository.getAccountByPhone(phone);
 
   if (account) {
     return true;
@@ -397,6 +528,11 @@ async function checkBalance(id) {
 }
 
 module.exports = {
+  checkLoginCredentials,
+  checkingTimeOut,
+  checkTimeOut,
+  loginFailed,
+  getAttempt,
   getAccounts,
   getAccount,
   createAccount,

@@ -1,4 +1,86 @@
-const { Account } = require('../../../models');
+const { Account, bankTime, bankLogin } = require('../../../models');
+
+/**
+ * Create time out
+ * @param {string} ip - IP address
+ * @param {date} time - bankTime
+ * @returns {Promise}
+ */
+async function createTimeOut(ip, time) {
+  return bankTime.create({
+    ip,
+    time,
+  });
+}
+
+/**
+ * Check time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
+async function checkTimeOut(ip) {
+  return bankTime.findOne({ ip });
+}
+
+/**
+ * Delete time out
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
+async function deleteTimeOut(ip) {
+  return bankTime.deleteOne({ ip: ip });
+}
+
+/**
+ * Save Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
+async function saveAttempt(ip, attempt) {
+  bankLogin.create({
+    ip,
+    attempt,
+  });
+  return true;
+}
+
+/**
+ * Update Attempt
+ * @param {string} ip - IP address
+ * @param {number} attempts - Attempts
+ * @returns {Promise}
+ */
+async function updateAttempt(ip, attempt) {
+  return bankLogin.updateOne(
+    {
+      ip: ip,
+    },
+    {
+      $set: {
+        attempt,
+      },
+    }
+  );
+}
+
+/**
+ * Get Attempt
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
+async function getAttempt(ip) {
+  return bankLogin.findOne({ ip });
+}
+
+/**
+ * Delete Attempt
+ * @param {string} ip - IP address
+ * @returns {Promise}
+ */
+async function deleteAttempt(ip) {
+  return bankLogin.deleteOne({ ip: ip });
+}
 
 /**
  * Get a list of accounts
@@ -171,7 +253,7 @@ async function deleteAccount(id) {
  * @param {string} id_number - Identity Number
  * @returns {Promise}
  */
-async function getUserByIdNumber(id_number) {
+async function getAccountByIdNumber(id_number) {
   return Account.findOne({ id_number });
 }
 
@@ -180,7 +262,7 @@ async function getUserByIdNumber(id_number) {
  * @param {string} email - Email
  * @returns {Promise}
  */
-async function getUserByEmail(email) {
+async function getAccountByEmail(email) {
   return Account.findOne({ email });
 }
 
@@ -189,7 +271,7 @@ async function getUserByEmail(email) {
  * @param {string} phone - Phone Number
  * @returns {Promise}
  */
-async function getUserByPhone(phone) {
+async function getAccountByPhone(phone) {
   return Account.findOne({ phone });
 }
 
@@ -214,15 +296,22 @@ async function changeBalance(id, balance) {
 }
 
 module.exports = {
+  createTimeOut,
+  checkTimeOut,
+  deleteTimeOut,
+  saveAttempt,
+  updateAttempt,
+  getAttempt,
+  deleteAttempt,
   getAccounts,
   countAccounts,
   getAccount,
   createAccount,
   updateAccount,
   deleteAccount,
-  getUserByIdNumber,
-  getUserByEmail,
-  getUserByPhone,
+  getAccountByIdNumber,
+  getAccountByEmail,
+  getAccountByPhone,
   changePin,
   changeBalance,
 };

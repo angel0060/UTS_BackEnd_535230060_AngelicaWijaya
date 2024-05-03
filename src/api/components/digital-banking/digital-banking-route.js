@@ -1,6 +1,6 @@
 const express = require('express');
 
-const authenticationMiddleware = require('../../middlewares/authentication-middleware');
+const authenticationMiddleware = require('../../middlewares/digital-banking-authentication-middleware');
 const celebrate = require('../../../core/celebrate-wrappers');
 const digitalBankingController = require('./digital-banking-controller');
 const digitalBankingValidator = require('./digital-banking-validator');
@@ -9,6 +9,13 @@ const route = express.Router();
 
 module.exports = (app) => {
   app.use('/digital-banking', route);
+
+  // Login
+  route.post(
+    '/login',
+    celebrate(digitalBankingValidator.login),
+    digitalBankingController.login
+  );
 
   // Get list of accounts
   route.get(
