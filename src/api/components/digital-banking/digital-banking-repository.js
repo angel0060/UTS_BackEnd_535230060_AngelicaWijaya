@@ -108,11 +108,25 @@ async function getAccount(id) {
  * @param {number} balance - Balance
  * @returns {Promise}
  */
-async function createAccount(name, email, phone, pin, balance) {
+async function createAccount(
+  id_number,
+  name,
+  email,
+  phone,
+  birth_place,
+  birth_date,
+  address,
+  pin,
+  balance
+) {
   return Account.create({
+    id_number,
     name,
     email,
     phone,
+    birth_place,
+    birth_date,
+    address,
     pin,
     balance,
   });
@@ -124,9 +138,10 @@ async function createAccount(name, email, phone, pin, balance) {
  * @param {string} name - Name
  * @param {string} email - Email
  * @param {string} phone - Phone Number
+ * @param {string} address - Address
  * @returns {Promise}
  */
-async function updateAccount(id, name, email, phone) {
+async function updateAccount(id, name, email, phone, address) {
   return Account.updateOne(
     {
       _id: id,
@@ -136,6 +151,7 @@ async function updateAccount(id, name, email, phone) {
         name,
         email,
         phone,
+        address,
       },
     }
   );
@@ -148,6 +164,15 @@ async function updateAccount(id, name, email, phone) {
  */
 async function deleteAccount(id) {
   return Account.deleteOne({ _id: id });
+}
+
+/**
+ * Get account by id_number to prevent duplicate id_number
+ * @param {string} id_number - Identity Number
+ * @returns {Promise}
+ */
+async function getUserByIdNumber(id_number) {
+  return Account.findOne({ id_number });
 }
 
 /**
@@ -195,6 +220,7 @@ module.exports = {
   createAccount,
   updateAccount,
   deleteAccount,
+  getUserByIdNumber,
   getUserByEmail,
   getUserByPhone,
   changePin,

@@ -64,9 +64,13 @@ async function getAccount(request, response, next) {
  */
 async function createAccount(request, response, next) {
   try {
+    const id_number = request.body.id_number;
     const name = request.body.name;
     const email = request.body.email;
     const phone = request.body.phone;
+    const birth_place = request.body.birth_place;
+    const birth_date = request.body.birth_date.toLocaleDateString();
+    const address = request.body.address;
     const pin = request.body.pin;
     const pin_confirm = request.body.pin_confirm;
 
@@ -75,6 +79,16 @@ async function createAccount(request, response, next) {
       throw errorResponder(
         errorTypes.INVALID_PASSWORD,
         'PIN confirmation mismatched'
+      );
+    }
+
+    // Identity Number must be unique
+    const idNumberIsRegistered =
+      await digitalBankingService.idNumberIsRegistered(id_number);
+    if (idNumberIsRegistered) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Identity Number is already registered'
       );
     }
 
@@ -99,9 +113,13 @@ async function createAccount(request, response, next) {
     }
 
     const success = await digitalBankingService.createAccount(
+      id_number,
       name,
       email,
       phone,
+      birth_place,
+      birth_date,
+      address,
       pin
     );
     if (!success) {
@@ -112,8 +130,8 @@ async function createAccount(request, response, next) {
     }
 
     return response.status(200).json({
+      id_number: id_number,
       name: name,
-      email: email,
       message: 'Account successfully created',
     });
   } catch (error) {
@@ -134,6 +152,7 @@ async function updateAccount(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
     const phone = request.body.phone;
+    const address = request.body.address;
 
     // Email must be unique
     const emailIsRegistered =
@@ -159,7 +178,8 @@ async function updateAccount(request, response, next) {
       id,
       name,
       email,
-      phone
+      phone,
+      address
     );
     if (!success) {
       throw errorResponder(

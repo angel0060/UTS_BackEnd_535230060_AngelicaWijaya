@@ -47,9 +47,13 @@ async function getAccounts(search, sort, page_number, page_size) {
     const account = accounts[i];
     results.push({
       id: account.id,
+      id_number: account.id_number,
       name: account.name,
       email: account.email,
       phone: account.phone,
+      birth_place: account.birth_place,
+      birth_date: account.birth_date.toLocaleDateString(),
+      address: account.address,
       pin: account.pin,
       balance: account.balance,
     });
@@ -84,9 +88,13 @@ async function getAccount(id) {
 
   return {
     id: account.id,
+    id_number: account.id_number,
     name: account.name,
     email: account.email,
     phone: account.phone,
+    birth_place: account.birth_place,
+    birth_date: account.birth_date.toLocaleDateString(),
+    address: account.address,
     pin: account.pin,
     balance: account.balance,
   };
@@ -100,7 +108,16 @@ async function getAccount(id) {
  * @param {string} pin - PIN
  * @returns {boolean}
  */
-async function createAccount(name, email, phone, pin) {
+async function createAccount(
+  id_number,
+  name,
+  email,
+  phone,
+  birth_place,
+  birth_date,
+  address,
+  pin
+) {
   // Hash pin
   const hashedPin = await hashPassword(pin);
 
@@ -109,9 +126,13 @@ async function createAccount(name, email, phone, pin) {
 
   try {
     await digitalBankingRepository.createAccount(
+      id_number,
       name,
       email,
       phone,
+      birth_place,
+      birth_date,
+      address,
       hashedPin,
       balance
     );
@@ -128,9 +149,10 @@ async function createAccount(name, email, phone, pin) {
  * @param {string} name - Name
  * @param {string} email - Email
  * @param {string} phone - Phone Number
+ * @param {string} address - Address
  * @returns {boolean}
  */
-async function updateAccount(id, name, email, phone) {
+async function updateAccount(id, name, email, phone, address) {
   const account = await digitalBankingRepository.getAccount(id);
 
   // Account not found
@@ -139,7 +161,13 @@ async function updateAccount(id, name, email, phone) {
   }
 
   try {
-    await digitalBankingRepository.updateAccount(id, name, email, phone);
+    await digitalBankingRepository.updateAccount(
+      id,
+      name,
+      email,
+      phone,
+      address
+    );
   } catch (err) {
     return null;
   }
@@ -167,6 +195,21 @@ async function deleteAccount(id) {
   }
 
   return true;
+}
+
+/**
+ * Check whether the id_number is registered
+ * @param {string} id_number - Identity Number
+ * @returns {boolean}
+ */
+async function idNumberIsRegistered(id_number) {
+  const account = await digitalBankingRepository.getUserByIdNumber(id_number);
+
+  if (account) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -349,6 +392,7 @@ module.exports = {
   createAccount,
   updateAccount,
   deleteAccount,
+  idNumberIsRegistered,
   emailIsRegistered,
   phoneIsRegistered,
   checkPin,

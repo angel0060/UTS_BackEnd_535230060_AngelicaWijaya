@@ -3,9 +3,13 @@ const joi = require('joi');
 module.exports = {
   createAccount: {
     body: {
+      id_number: joi.string().required().label('National Identity Number'),
       name: joi.string().min(1).max(100).required().label('Name'),
       email: joi.string().email().required().label('Email'),
       phone: joi.string().required().label('Phone Number'),
+      birth_place: joi.string().required().label('Birth Place'),
+      birth_date: joi.date().max('now').required().label('Birth Date'),
+      address: joi.string().required().label('Address'),
       pin: joi.string().min(6).max(6).required().label('PIN'),
       pin_confirm: joi.string().required().label('PIN confirmation'),
     },
@@ -16,6 +20,7 @@ module.exports = {
       name: joi.string().min(1).max(100).required().label('Name'),
       email: joi.string().email().required().label('Email'),
       phone: joi.string().required().label('Phone Number'),
+      address: joi.string().required().label('Address'),
     },
   },
 
