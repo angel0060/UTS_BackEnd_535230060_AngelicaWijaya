@@ -291,6 +291,15 @@ async function withdrawBalance(request, response, next) {
       );
     }
 
+    // mengecek apakah saldonya cukup untuk tarik saldo
+    const balance = await digitalBankingService.checkBalance(id);
+    if (balance < withdraw) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to withdraw balance. Your balance is not enough for withdrawal'
+      );
+    }
+
     const success = await digitalBankingService.withdrawBalance(id, withdraw);
     if (!success) {
       throw errorResponder(
@@ -299,9 +308,14 @@ async function withdrawBalance(request, response, next) {
       );
     }
 
-    return response
-      .status(200)
-      .json({ id: id, message: 'Withdraw Balance successful' });
+    // untuk mengecek total saldo sekarang di rekening
+    const currentBalance = await digitalBankingService.checkBalance(id);
+
+    return response.status(200).json({
+      id: id,
+      balance: currentBalance,
+      message: 'Withdraw Balance successful',
+    });
   } catch (error) {
     return next(error);
   }
@@ -336,9 +350,14 @@ async function depositBalance(request, response, next) {
       );
     }
 
-    return response
-      .status(200)
-      .json({ id: id, message: 'Deposit Balance successful' });
+    // untuk mengecek total saldo sekarang di rekening
+    const currentBalance = await digitalBankingService.checkBalance(id);
+
+    return response.status(200).json({
+      id: id,
+      balance: currentBalance,
+      message: 'Deposit Balance successful',
+    });
   } catch (error) {
     return next(error);
   }
@@ -366,6 +385,15 @@ async function transferBalance(request, response, next) {
       );
     }
 
+    // mengecek apakah saldonya cukup untuk transfer saldo
+    const balance = await digitalBankingService.checkBalance(id);
+    if (balance < transfer) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to withdraw balance. Your balance is not enough for transaction'
+      );
+    }
+
     const success = await digitalBankingService.transferBalance(
       id,
       transfer,
@@ -378,9 +406,14 @@ async function transferBalance(request, response, next) {
       );
     }
 
-    return response
-      .status(200)
-      .json({ id: id, message: 'Transfer Balance successful' });
+    // untuk mengecek total saldo sekarang di rekening
+    const currentBalance = await digitalBankingService.checkBalance(id);
+
+    return response.status(200).json({
+      id: id,
+      balance: currentBalance,
+      message: 'Transfer Balance successful',
+    });
   } catch (error) {
     return next(error);
   }

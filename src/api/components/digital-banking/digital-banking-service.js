@@ -386,6 +386,16 @@ async function transferBalance(accountId, transfer, receiverId) {
   return true;
 }
 
+/**
+ * Check balance
+ * @param {string} id - Account ID
+ * @returns {Promise}
+ */
+async function checkBalance(id) {
+  const account = await digitalBankingRepository.getAccount(id);
+  return account.balance;
+}
+
 module.exports = {
   getAccounts,
   getAccount,
@@ -400,4 +410,5 @@ module.exports = {
   withdrawBalance,
   depositBalance,
   transferBalance,
+  checkBalance,
 };
