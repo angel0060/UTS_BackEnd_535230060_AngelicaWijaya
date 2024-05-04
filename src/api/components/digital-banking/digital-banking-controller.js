@@ -498,6 +498,31 @@ async function transferBalance(request, response, next) {
   }
 }
 
+/**
+ * Handle get transaction history request
+ * @param {object} request - Express request object
+ * @param {object} response - Express response object
+ * @param {object} next - Express route middlewares
+ * @returns {object} Response object or pass an error to the next route
+ */
+async function getHistory(request, response, next) {
+  try {
+    const id = request.params.id;
+    const category = request.query.category || 'all'; // jika tidak di isi, maka defaultnya adalah all (menampilkan semua transaksi)
+
+    const success = await digitalBankingService.getHistory(id, category);
+    if (!success) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to get transaction history'
+      );
+    }
+    return response.status(200).json(success);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   login,
   getAccounts,
@@ -509,4 +534,5 @@ module.exports = {
   withdrawBalance,
   depositBalance,
   transferBalance,
+  getHistory,
 };

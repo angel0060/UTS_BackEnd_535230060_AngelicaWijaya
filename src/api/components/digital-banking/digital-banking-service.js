@@ -31,7 +31,7 @@ async function checkLoginCredentials(ip, email, pin) {
     return {
       email: account.email,
       name: account.name,
-      user_id: account.id,
+      account_id: account.id,
       token: generateToken(account.email, account.id),
       message: `Successful Login at ${currentDateTime}`,
     };
@@ -232,9 +232,13 @@ async function getAccount(id) {
 
 /**
  * Create new account
+ * @param {string} id_number - National ID Number
  * @param {string} name - Name
  * @param {string} email - Email
  * @param {string} phone - Phone Number
+ * @param {string} birth_place - Birth place
+ * @param {date} birth_date - Birth Date
+ * @param {string} address - Address
  * @param {string} pin - PIN
  * @returns {boolean}
  */
@@ -437,6 +441,19 @@ async function withdrawBalance(accountId, withdraw) {
     return null;
   }
 
+  // membuat riwayat transaksi
+  const type = 'withdraw';
+  const time = new Date().toLocaleString();
+  const transaction = await digitalBankingRepository.createTransaction(
+    accountId,
+    time,
+    type,
+    withdraw
+  );
+  if (!transaction) {
+    return null;
+  }
+
   return true;
 }
 
@@ -462,6 +479,19 @@ async function depositBalance(accountId, deposit) {
     balance
   );
   if (!success) {
+    return null;
+  }
+
+  // membuat riwayat transaksi
+  const type = 'deposit';
+  const time = new Date().toLocaleString();
+  const transaction = await digitalBankingRepository.createTransaction(
+    accountId,
+    time,
+    type,
+    deposit
+  );
+  if (!transaction) {
     return null;
   }
 
@@ -495,6 +525,19 @@ async function transferBalance(accountId, transfer, receiverId) {
     return null;
   }
 
+  // membuat riwayat transaksi pengirim
+  const type = 'transfer';
+  const time = new Date().toLocaleString();
+  const transaction = await digitalBankingRepository.createTransaction(
+    accountId,
+    time,
+    type,
+    transfer
+  );
+  if (!transaction) {
+    return null;
+  }
+
   // mengambil data account yang akan menerima transfer saldo
   const receiver = await digitalBankingRepository.getAccount(receiverId);
 
@@ -514,6 +557,19 @@ async function transferBalance(accountId, transfer, receiverId) {
     return null;
   }
 
+  // membuat riwayat transaksi penerima
+  const typee = 'receive transfer';
+  const timee = new Date().toLocaleString();
+  const transactionn = await digitalBankingRepository.createTransaction(
+    receiverId,
+    timee,
+    typee,
+    transfer
+  );
+  if (!transactionn) {
+    return null;
+  }
+
   return true;
 }
 
@@ -525,6 +581,30 @@ async function transferBalance(accountId, transfer, receiverId) {
 async function checkBalance(id) {
   const account = await digitalBankingRepository.getAccount(id);
   return account.balance;
+}
+
+/**
+ * Get transaction history
+ * @param {string} id - Account ID
+ * @param {string} category - Transaction category
+ * @returns {Promise}
+ */
+async function getHistory(id, category) {
+  const transactions = await digitalBankingRepository.findTransaction(
+    id,
+    category
+  );
+  // array berisi data transactions
+  const results = [];
+  for (let i = 0; i < transactions.length; i += 1) {
+    const transaction = transactions[i];
+    results.push({
+      date_time: transaction.date_time.toLocaleString(),
+      type: transaction.type,
+      total: transaction.total,
+    });
+  }
+  return results;
 }
 
 module.exports = {
@@ -547,4 +627,5 @@ module.exports = {
   depositBalance,
   transferBalance,
   checkBalance,
+  getHistory,
 };

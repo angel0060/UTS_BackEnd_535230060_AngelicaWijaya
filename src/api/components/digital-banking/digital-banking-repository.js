@@ -1,4 +1,9 @@
-const { Account, bankTime, bankLogin } = require('../../../models');
+const {
+  Account,
+  bankTime,
+  bankLogin,
+  Transaction,
+} = require('../../../models');
 
 /**
  * Create time out
@@ -183,10 +188,14 @@ async function getAccount(id) {
 
 /**
  * Create new account
+ * @param {string} id_number - National ID Number
  * @param {string} name - Name
  * @param {string} email - Email
  * @param {string} phone - Phone Number
- * @param {string} pin - Hashed pin
+ * @param {string} birth_place - Birth place
+ * @param {date} birth_date - Birth Date
+ * @param {string} address - Address
+ * @param {string} pin - Hashed PIN
  * @param {number} balance - Balance
  * @returns {Promise}
  */
@@ -295,6 +304,40 @@ async function changeBalance(id, balance) {
   return Account.updateOne({ _id: id }, { $set: { balance } });
 }
 
+/**
+ * Create transaction history
+ * @param {string} id - Account ID
+ * @param {date} date_time - Date & Time of transaction
+ * @param {string} type - Transaction type
+ * @param {number} total - Total
+ * @returns {Promise}
+ */
+async function createTransaction(account_id, date_time, type, total) {
+  return Transaction.create({
+    account_id,
+    date_time,
+    type,
+    total,
+  });
+}
+
+/**
+ * Find transaction history
+ * @param {string} id - Account ID
+ * @param {string} category - Transaction category
+ * @returns {Promise}
+ */
+async function findTransaction(account_id, category) {
+  let transaction = 0;
+
+  if (category == 'all') {
+    transaction = Transaction.find({ account_id });
+  } else {
+    transaction = Transaction.find({ account_id, type: category });
+  }
+  return transaction;
+}
+
 module.exports = {
   createTimeOut,
   checkTimeOut,
@@ -314,4 +357,6 @@ module.exports = {
   getAccountByPhone,
   changePin,
   changeBalance,
+  createTransaction,
+  findTransaction,
 };

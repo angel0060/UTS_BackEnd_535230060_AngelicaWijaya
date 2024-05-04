@@ -85,4 +85,11 @@ module.exports = (app) => {
     celebrate(digitalBankingValidator.transferBalance),
     digitalBankingController.transferBalance
   );
+
+  // Get account transaction history
+  route.get(
+    '/:id/transaction',
+    authenticationMiddleware,
+    digitalBankingController.getHistory
+  );
 };

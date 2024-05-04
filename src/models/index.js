@@ -6,6 +6,7 @@ const usersSchema = require('./users-schema');
 const timeOutSchema = require('./time-out-schema');
 const attemptLoginSchema = require('./attempt-login-schema');
 const accountSchema = require('./account-digital-banking-schema');
+const transactionSchema = require('./transaction-digital-banking-schema');
 
 mongoose.connect(`${config.database.connection}/${config.database.name}`, {
   useNewUrlParser: true,
@@ -40,6 +41,11 @@ const bankLogin = mongoose.model(
   mongoose.Schema(attemptLoginSchema)
 );
 
+const Transaction = mongoose.model(
+  'Digital Banking Transaction History',
+  mongoose.Schema(transactionSchema)
+);
+
 module.exports = {
   mongoose,
   User,
@@ -48,4 +54,5 @@ module.exports = {
   Account,
   bankTime,
   bankLogin,
+  Transaction,
 };
