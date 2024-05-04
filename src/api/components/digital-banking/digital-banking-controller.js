@@ -90,10 +90,10 @@ async function login(request, response, next) {
 async function getAccounts(request, response, next) {
   try {
     // inisialisasi variabel
-    const search = request.query.search || ''; // jika tidak di isi, maka defaultnya adalah kosong
-    const sort = request.query.sort || 'email:asc'; // jika tidak di isi, maka defaultnya adalah sort berdasarkan email: ascending
-    const page_number = parseInt(request.query.page_number) - 1 || 0; // jika tidak di isi, maka defaultnya adalah 1 (di tulis 0 hanya utk keperluan menghitung)
-    const page_size = parseInt(request.query.page_size) || 1 / 0; // jika tidak di isi, maka defaultnya adalah menampilkan semua data dalam 1 halaman
+    const search = request.query.search; // jika tidak di isi, maka defaultnya adalah kosong
+    const sort = request.query.sort; // jika tidak di isi, maka defaultnya adalah sort berdasarkan email: ascending
+    const page_number = parseInt(request.query.page_number) - 1; // jika tidak di isi, maka defaultnya adalah 1 (di tulis 0 hanya utk keperluan menghitung)
+    const page_size = parseInt(request.query.page_size); // jika tidak di isi, maka defaultnya adalah menampilkan semua data dalam 1 halaman
 
     const accounts = await digitalBankingService.getAccounts(
       search,

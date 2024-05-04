@@ -3,6 +3,25 @@ const { joiPasswordExtendCore } = require('joi-password');
 const joiPassword = joi.extend(joiPasswordExtendCore);
 
 module.exports = {
+  getUsers: {
+    query: {
+      page_number: joi
+        .number()
+        .integer()
+        .positive()
+        .default(1)
+        .label('Page Number'),
+      page_size: joi
+        .number()
+        .integer()
+        .positive()
+        .default(1 / 0)
+        .label('Page Number'),
+      search: joi.string().default(':').label('Search'),
+      sort: joi.string().default('email:asc').label('Sort'),
+    },
+  },
+
   createUser: {
     body: {
       name: joi.string().min(1).max(100).required().label('Name'),

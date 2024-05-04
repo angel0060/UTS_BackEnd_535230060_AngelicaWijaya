@@ -8,6 +8,25 @@ module.exports = {
     },
   },
 
+  getAccounts: {
+    query: {
+      page_number: joi
+        .number()
+        .integer()
+        .positive()
+        .default(1)
+        .label('Page Number'),
+      page_size: joi
+        .number()
+        .integer()
+        .positive()
+        .default(1 / 0)
+        .label('Page Number'),
+      search: joi.string().default(':').label('Search'),
+      sort: joi.string().default('email:asc').label('Sort'),
+    },
+  },
+
   createAccount: {
     body: {
       id_number: joi.string().required().label('National Identity Number'),

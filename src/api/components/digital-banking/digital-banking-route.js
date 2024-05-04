@@ -21,6 +21,7 @@ module.exports = (app) => {
   route.get(
     '/',
     authenticationMiddleware,
+    celebrate(digitalBankingValidator.getAccounts),
     digitalBankingController.getAccounts
   );
 
