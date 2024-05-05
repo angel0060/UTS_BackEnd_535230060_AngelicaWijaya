@@ -558,7 +558,7 @@ async function transferBalance(accountId, transfer, receiverId) {
   }
 
   // membuat riwayat transaksi penerima
-  const typee = 'receive transfer';
+  const typee = 'receive_transfer';
   const timee = new Date().toLocaleString();
   const transactionn = await digitalBankingRepository.createTransaction(
     receiverId,

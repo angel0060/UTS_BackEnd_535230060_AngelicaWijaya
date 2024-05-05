@@ -311,7 +311,7 @@ async function deleteAccount(request, response, next) {
  */
 async function changePin(request, response, next) {
   try {
-    // Check pin confirmation
+    // Check PIN confirmation
     if (request.body.pin_new !== request.body.pin_confirm) {
       throw errorResponder(
         errorTypes.INVALID_PASSWORD,
@@ -319,7 +319,7 @@ async function changePin(request, response, next) {
       );
     }
 
-    // Check old pin
+    // Check PIN lama
     if (
       !(await digitalBankingService.checkPin(
         request.params.id,
@@ -329,6 +329,7 @@ async function changePin(request, response, next) {
       throw errorResponder(errorTypes.INVALID_CREDENTIALS, 'Wrong Old PIN');
     }
 
+    // memanggil fungsi untuk mengganti PIN
     const changeSuccess = await digitalBankingService.changePin(
       request.params.id,
       request.body.pin_new
@@ -362,14 +363,6 @@ async function withdrawBalance(request, response, next) {
     const pin = request.body.pin;
     const withdraw = request.body.withdraw;
 
-    const checkPin = await digitalBankingService.checkPin(id, pin);
-    if (!checkPin) {
-      throw errorResponder(
-        errorTypes.INVALID_PASSWORD,
-        'Wrong PIN for this account'
-      );
-    }
-
     // mengecek apakah saldonya cukup untuk tarik saldo
     const balance = await digitalBankingService.checkBalance(id);
     if (balance < withdraw) {
@@ -379,6 +372,16 @@ async function withdrawBalance(request, response, next) {
       );
     }
 
+    // mengecek apakah PIN sudah benar
+    const checkPin = await digitalBankingService.checkPin(id, pin);
+    if (!checkPin) {
+      throw errorResponder(
+        errorTypes.INVALID_PASSWORD,
+        'Wrong PIN for this account'
+      );
+    }
+
+    // memanggil fungsi untuk melakukan transaksi
     const success = await digitalBankingService.withdrawBalance(id, withdraw);
     if (!success) {
       throw errorResponder(
@@ -413,6 +416,7 @@ async function depositBalance(request, response, next) {
     const pin = request.body.pin;
     const deposit = request.body.deposit;
 
+    // mengecek apakah PIN sudah benar
     const checkPin = await digitalBankingService.checkPin(id, pin);
     if (!checkPin) {
       throw errorResponder(
@@ -421,6 +425,7 @@ async function depositBalance(request, response, next) {
       );
     }
 
+    // memanggil fungsi untuk melakukan transaksi
     const success = await digitalBankingService.depositBalance(id, deposit);
     if (!success) {
       throw errorResponder(
@@ -456,11 +461,12 @@ async function transferBalance(request, response, next) {
     const transfer = request.body.transfer;
     const to_id = request.body.to_id;
 
-    const checkPin = await digitalBankingService.checkPin(id, pin);
-    if (!checkPin) {
+    // mengecek apakah id penerima ditemukan
+    const receiver = await digitalBankingService.getAccount(to_id);
+    if (!receiver) {
       throw errorResponder(
-        errorTypes.INVALID_PASSWORD,
-        'Wrong PIN for this account'
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Receiver account not found'
       );
     }
 
@@ -473,6 +479,16 @@ async function transferBalance(request, response, next) {
       );
     }
 
+    // mengecek apakah PIN sudah benar
+    const checkPin = await digitalBankingService.checkPin(id, pin);
+    if (!checkPin) {
+      throw errorResponder(
+        errorTypes.INVALID_PASSWORD,
+        'Wrong PIN for this account'
+      );
+    }
+
+    // memanggil fungsi untuk melakukan transaksi
     const success = await digitalBankingService.transferBalance(
       id,
       transfer,
