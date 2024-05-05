@@ -79,4 +79,10 @@ module.exports = {
       to_id: joi.string().required().label('Transfer to id'),
     },
   },
+
+  getHistory: {
+    query: {
+      category: joi.string().default('all').label('Category'),
+    },
+  },
 };

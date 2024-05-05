@@ -91,6 +91,7 @@ module.exports = (app) => {
   route.get(
     '/:id/transaction',
     authenticationMiddleware,
+    celebrate(digitalBankingValidator.getHistory),
     digitalBankingController.getHistory
   );
 };

@@ -508,7 +508,7 @@ async function transferBalance(request, response, next) {
 async function getHistory(request, response, next) {
   try {
     const id = request.params.id;
-    const category = request.query.category || 'all'; // jika tidak di isi, maka defaultnya adalah all (menampilkan semua transaksi)
+    const category = request.query.category; // jika tidak di isi, maka defaultnya adalah all (menampilkan semua transaksi)
 
     const success = await digitalBankingService.getHistory(id, category);
     if (!success) {
